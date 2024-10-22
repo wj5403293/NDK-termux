@@ -1,6 +1,9 @@
-name: Compile with Actions
+name: Build LLVM Toolchain
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -8,32 +11,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Install Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3
+      - name: 检出代码
+        uses: actions/checkout@v2
 
-      - name: Download repo
-        run: |
-          curl https://storage.googleapis.com/git-repo-downloads/repo > repo && chmod a+rx repo
+      - name: 安装 curl
+        run: sudo apt-get install -y curl
 
-      - name: Prepare Environment
+      - name: 下载 repo 工具
         run: |
-          mkdir llvm-toolchain && cd llvm-toolchain
+          curl https://storage.googleapis.com/git-repo-downloads/repo > ./repo
+          chmod 755 ./repo
 
-      - name: Initialize repo
+      - name: 初始化 LLVM Toolchain
         run: |
-          ./repo init -u https://android.googlesource.com/platform/manifest -b llvm-toolchain
+          mkdir llvm-toolchain
+          cd llvm-toolchain
+          ../repo init -u https://android.googlesource.com/platform/manifest -b llvm-toolchain
+          cp ../manifest_7714059.xml .repo/manifests
+          ../repo init -m manifest_7714059.xml
+          ../repo sync -c -j$(($(nproc --all)+1))
 
-      - name: Copy manifest
+      - name: 构建 LLVM Toolchain
         run: |
-          cp../manifest_7714059.xml.repo/manifests
-          ./repo init -m manifest_7714059.xml
-
-      - name: Sync repo
-        run: |
-           ./repo sync -c -j$(($(nproc --all)+1))
-
-      - name: Build
-        run: |
+          cd llvm-toolchain
           python toolchain/llvm_android/build.py --build-name 7714059 --no-build windows --skip stage1
