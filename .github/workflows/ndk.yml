@@ -1,0 +1,40 @@
+name: Compile with Actions
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python
+
+      - name: Download repo
+        run: |
+          curl https://storage.googleapis.com/git-repo-downloads/repo > /usr/bin/repo
+          chmod 755 /usr/bin/repo
+
+      - name: Prepare Environment
+        run: |
+          mkdir llvm-toolchain && cd llvm-toolchain
+
+      - name: Initialize repo
+        run: |
+          repo init -u https://android.googlesource.com/platform/manifest -b llvm-toolchain
+
+      - name: Copy manifest
+        run: |
+          cp../manifest_7714059.xml.repo/manifests
+          repo init -m manifest_7714059.xml
+
+      - name: Sync repo
+        run: |
+          repo sync -c -j$(($(nproc --all)+1))
+
+      - name: Build
+        run: |
+          python toolchain/llvm_android/build.py --build-name 7714059 --no-build windows --skip stage1
