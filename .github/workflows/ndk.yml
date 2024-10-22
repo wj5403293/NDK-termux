@@ -15,8 +15,7 @@ jobs:
 
       - name: Download repo
         run: |
-          curl https://storage.googleapis.com/git-repo-downloads/repo > /usr/bin/repo
-          chmod 755 /usr/bin/repo
+          curl https://storage.googleapis.com/git-repo-downloads/repo > repo && chmod a+rx repo
 
       - name: Prepare Environment
         run: |
