@@ -27,7 +27,7 @@ jobs:
           mkdir llvm-toolchain
           cd llvm-toolchain
           ../repo init -u https://android.googlesource.com/platform/manifest -b llvm-toolchain
-          cp ../manifest_7714059.xml .repo/manifests
+          cp ../manifest_7714059.xml .repo/manifests  # 确保路径正确
           ../repo init -m manifest_7714059.xml
           ../repo sync -c -j$(($(nproc --all)+1))
 
