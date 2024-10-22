@@ -22,6 +22,9 @@ jobs:
           curl https://storage.googleapis.com/git-repo-downloads/repo > ./repo
           chmod 755 ./repo
 
+      - name: 列出当前目录内容
+        run: ls -al  # 添加这一步以调试
+
       - name: 初始化 LLVM Toolchain
         run: |
           mkdir llvm-toolchain
