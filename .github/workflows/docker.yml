@@ -14,8 +14,9 @@ jobs:
     - name: Build in Docker container
       run: |
         docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace \
-        gcc:latest bash -c "
-          apt-get update && apt-get install -y wget unzip ninja-build && \
+        ubuntu:latest bash -c "
+          apt-get update && \
+          apt-get install -y wget unzip ninja-build cmake make && \
           wget https://dl.google.com/android/repository/android-ndk-r27c-linux.zip && \
           unzip android-ndk-r27c-linux.zip -d /workspace && \
           NDK_HOME=/workspace/android-ndk-r27c && \
