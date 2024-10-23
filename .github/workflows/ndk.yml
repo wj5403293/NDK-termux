@@ -1,40 +1,48 @@
-name: Build LLVM Toolchain
+name: Build GNU Make for Android
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 检出代码
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: 安装 curl
-        run: sudo apt-get install -y curl
+    - name: Set up Android NDK
+      run: |
+        wget https://dl.google.com/android/repository/android-ndk-r27b-linux-x86_64.zip
+        unzip android-ndk-r27b-linux-x86_64.zip -d $HOME
+        echo "NDK_HOME=$HOME/android-ndk-r27b" >> $GITHUB_ENV
 
-      - name: 下载 repo 工具
-        run: |
-          curl https://storage.googleapis.com/git-repo-downloads/repo > ./repo
-          chmod 755 ./repo
+    - name: Download GNU Make source
+      run: |
+        wget https://ftp.gnu.org/gnu/make/make-4.3.tar.gz
+        tar -xzf make-4.3.tar.gz
+        cd make-4.3
 
-      - name: 列出当前目录内容
-        run: ls -al  # 添加这一步以调试
+    - name: Build GNU Make
+      run: |
+        export NDK_HOME=$HOME/android-ndk-r27b
+        export TOOLCHAIN=$NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64
+        export TARGET_ARCH=arm64-v8a
+        export SYSROOT=$TOOLCHAIN/sysroot
+        export CC=$TOOLCHAIN/bin/aarch64-linux-android25-clang
+        export CXX=$TOOLCHAIN/bin/aarch64-linux-android25-clang++
 
-      - name: 初始化 LLVM Toolchain
-        run: |
-          mkdir llvm-toolchain
-          cd llvm-toolchain
-          ../repo init -u https://android.googlesource.com/platform/manifest -b llvm-toolchain
-          cp ../manifest_7714059.xml .repo/manifests  # 确保路径正确
-          ../repo init -m manifest_7714059.xml
-          ../repo sync -c -j$(($(nproc --all)+1))
+        cd make-4.3
+        ./configure --host=aarch64-linux-android --prefix=$PWD/output
+        make
+        make install
 
-      - name: 构建 LLVM Toolchain
-        run: |
-          cd llvm-toolchain
-          python toolchain/llvm_android/build.py --build-name 7714059 --no-build windows --skip stage1
+    - name: List output files
+      run: |
+        ls -l make-4.3/output/bin
+        ls -l make-4.3/output/lib
