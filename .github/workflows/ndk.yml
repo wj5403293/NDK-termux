@@ -21,7 +21,6 @@ jobs:
       run: |
         wget https://ftp.gnu.org/gnu/make/make-4.3.tar.gz
         tar -xzf make-4.3.tar.gz
-        cd make-4.3
 
     - name: Build GNU Make
       run: |
@@ -37,7 +36,13 @@ jobs:
         make
         make install
 
-    - name: List output files
+    - name: Package output directory
       run: |
-        ls -l make-4.3/output/bin
-        ls -l make-4.3/output/lib
+        cd make-4.3
+        tar -cJf output.tar.xz output
+
+    - name: Upload output archive
+      uses: actions/upload-artifact@v3
+      with:
+        name: make-output
+        path: make-4.3/output.tar.xz
