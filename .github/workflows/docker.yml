@@ -16,7 +16,7 @@ jobs:
         docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace \
         ubuntu:latest bash -c "
           apt-get update && \
-          apt-get install -y wget build-essential unzip ninja-build cmake make xz-utils && \
+          apt-get install -y wget build-essential unzip ninja-build cmake make xz-utils python3 && \
           wget https://dl.google.com/android/repository/android-ndk-r27c-linux.zip && \
           unzip android-ndk-r27c-linux.zip -d /workspace && \
           NDK_HOME=/workspace/android-ndk-r27c && \
