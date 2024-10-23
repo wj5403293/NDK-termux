@@ -37,7 +37,7 @@ jobs:
         export CXX=$TOOLCHAIN/bin/aarch64-linux-android25-clang++
 
         cd make-4.3
-        ./configure --host=aarch64-linux-android --prefix=$PWD/output
+        ./configure --host=aarch64-linux-android --prefix=$PWD/output --enable-nls
         make
         make install
 
