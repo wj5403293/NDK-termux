@@ -24,8 +24,8 @@ jobs:
 
     - name: Download GNU Make source
       run: |
-        wget https://ftp.gnu.org/gnu/make/make-4.4.1.tar.gz
-        tar -xzf make-4.4.1.tar.gz
+        wget https://ftp.gnu.org/gnu/make/make-4.4.tar.gz
+        tar -xzf make-4.4.tar.gz
 
     - name: Build GNU Make
       run: |
@@ -36,18 +36,18 @@ jobs:
         export CC=$TOOLCHAIN/bin/aarch64-linux-android28-clang
         export CXX=$TOOLCHAIN/bin/aarch64-linux-android28-clang++
 
-        cd make-4.4.1
+        cd make-4.4
         ./configure --host=aarch64-linux-android --prefix=$PWD/output --enable-nls
         make
         make install
 
     - name: Package output directory
       run: |
-        cd make-4.4.1
+        cd make-4.4
         tar -cJf output.tar.xz output
 
     - name: Upload output archive
       uses: actions/upload-artifact@v3
       with:
         name: make-output
-        path: make-4.4.1/output.tar.xz
+        path: make-4.4/output.tar.xz
